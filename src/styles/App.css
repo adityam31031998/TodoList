@@ -1,0 +1,28 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #F6F4F4;
+}
+
+.bgimage{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-size: center;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 40vh;
+  width: 100vw;
+  background-image: url("../mm.jpg");
+  opacity: 0.8;
+}
+
+.App {
+  height: 1080px;
+  width: auto;
+  position: relative;
+}
+
+.outer-shadow {
+  box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.3);
+}
