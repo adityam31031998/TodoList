@@ -1,60 +1,65 @@
 import React, { useState } from "react";
 import TextField from "@mui/material/TextField";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
+import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
-import { Alert } from "@mui/material";
+import "../styles/App.css";
 
-const Details = () => {
+const TodoList = () => {
   const [todoText, setTodoText] = useState("");
   const [tasks, setTasks] = useState([]);
-  const [selectRadio, setSelectRadio] = useState(-1);
-  const [errorMessage, setErrorMessage] = useState("");
-
+  const [selectedFilter, setSelectedFilter] = useState("all");
   const handleTodoTextChange = (e) => {
     setTodoText(e.target.value);
   };
-
   const handleInputKeyPress = (e) => {
     if (e.key === "Enter" && todoText.trim() !== "") {
-      setTasks([...tasks, { text: todoText }]);
+      const newTask = { text: todoText, completed: false };
+      setTasks([...tasks, newTask]);
       setTodoText("");
     }
   };
-
-  const handleRadioChange = (index) => {
-    setSelectRadio(index);
-    setErrorMessage("");
+  const handleCheckboxChange = (index) => {
+    const updatedTasks = [...tasks];
+    updatedTasks[index].completed = !updatedTasks[index].completed;
+    setTasks(updatedTasks);
   };
-
   const handleDeleteTask = (index) => {
-    if (selectRadio === -1) {
-      setErrorMessage("Please select a task to delete.");
-    } else {
-      const updatedTasks = [...tasks];
-      updatedTasks.splice(index, 1);
-      setTasks(updatedTasks);
-      setSelectRadio(-1);
-    }
+    const updatedTasks = [...tasks];
+    updatedTasks.splice(index, 1);
+    setTasks(updatedTasks);
   };
+
+  const clearCompleted = () => {
+    const updatedTasks = tasks.filter((task) => !task.completed);
+    setTasks(updatedTasks);
+  };
+  const updateFilter = (selected) => {
+    setSelectedFilter(selected);
+  };
+  const filteredTasks =
+    selectedFilter === "completed"
+      ? tasks.filter((task) => task.completed)
+      : selectedFilter === "active"
+      ? tasks.filter((task) => !task.completed)
+      : tasks;
 
   return (
-    <Grid className="bgimage" container>
+    <Grid className="bg" container>
       <div
-        style={{ position: "relative", top: "20%", left: "15%", width: "70vw" }}
+        style={{ position: "relative", top: "20%", left: "10%", width: "70vw" }}
       >
         <Grid item xs={6}>
-          <h2 style={{ color: "black" }}>T O D O</h2>
+          <h1 className="title">T O D O</h1>
         </Grid>
-        <Grid item xs={7}>
+        <Grid item xs={9}>
           <TextField
+            className="inputStyle"
             style={{ backgroundColor: "white", borderRadius: "4px" }}
-            variant="outlined"
-            placeholder="Enter task to add."
+            placeholder="Create a new todo..."
             fullWidth
             value={todoText}
             onChange={handleTodoTextChange}
@@ -62,44 +67,52 @@ const Details = () => {
           />
         </Grid>
         <br />
-        <Grid item xs={7} className="outer-shadow">
+        <Grid item xs={9} className="outer-shadow">
           <div style={{ backgroundColor: "white" }}>
-            {tasks.length===0 ? (
-              <FormControl component="fieldset">
-                <p>Task not found Please Enter new task</p>
-              </FormControl>
-            ) : (
-              <FormControl component="fieldset">
-                <RadioGroup
-                  aria-label="tasks"
-                  name="tasks"
-                  value={selectRadio}
-                  onChange={(e) => handleRadioChange(Number(e.target.value))}
-                >
-                  {tasks.map((task, index) => (
-                    <div style={{ background: "none" }} key={index}>
-                      <FormControlLabel
-                        value={index}
-                        control={<Radio />}
-                        label={task.text}
+            <FormControl component="fieldset">
+              {filteredTasks.map((task, index) => (
+                <div key={index}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={task.completed}
+                        onChange={() => handleCheckboxChange(index)}
                       />
-                      <IconButton onClick={() => handleDeleteTask(index)}>
-                        <CloseIcon />
-                      </IconButton>
-                    </div>
-                  ))}
-                </RadioGroup>
-              </FormControl>
-            )}
+                    }
+                    label={task.completed ? <del>{task.text}</del> : task.text}
+                  />
+                  <IconButton onClick={() => handleDeleteTask(index)}>
+                    <CloseIcon />
+                  </IconButton>
+                </div>
+              ))}
+            </FormControl>
           </div>
-          <div style={{ backgroundColor: "white", fontSize: "15px" }}>
-            <p>{tasks.length} Items left</p>
+          <div
+            style={{
+              backgroundColor: "white",
+              fontSize: "15px",
+              display: "flex",
+            }}
+          >
+            <p style={{ margin: "30px" }}>{filteredTasks.length} Items left</p>
+            <div
+              style={{
+                userSelect: "none",
+                display: "flex",
+                gap: "80%",
+              }}
+            >
+              <p onClick={() => updateFilter("all")}>All</p>
+              <p onClick={() => updateFilter("active")}>Active</p>
+              <p onClick={() => updateFilter("completed")}>Completed</p>
+              <p onClick={clearCompleted}>Clear Completed</p>
+            </div>
           </div>
-          {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
         </Grid>
       </div>
     </Grid>
   );
 };
 
-export default Details;
+export default TodoList;
